@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
-
-"""
-Simple Network Port Scanner
-
-"""
-
 import socket
 
+# Lista på portar fyll mer?
+ports = {21: "FTP", 22: "SSH",23: "Telnet",80: "HTTP", 443: "HTTPS", 3306: "MySQL", 3389: "RDP", 8080: "ALT-HTTP"}
+
+print("=" * 40)
+print("          Port Scan v1.1")
+print("=" * 40)
+
+
 ip = input("\nEnter IP-address: ")
-
-# Lista på portar 
-ports = [21,22,23,80,443,3306,3389,8080]
-
 print(f"\nScanning {ip} ....\n")
 
-for port in ports:
+open_ports = 0
+for port, name in ports.items():
     try:
-
         # Skapa socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
+        sock.settimeout(2)
 
         # Försök anslut
         result = sock.connect_ex((ip, port))
@@ -27,13 +25,17 @@ for port in ports:
         # Om result = 0 då är porten öppen
 
         if result == 0:
-            print (f" Port {port} is OPEN")
+            print (f" Port {port} ({name}) is OPEN")
+            open_ports += 1
         else:
-            print(f" Port {port} is CLOSED")
+            print(f" Port {port} ({name}) is CLOSED")
 
         sock.close()
 
     except:
-        print(f" Port {port} - Could not Scan?!= ")
+        print(f" Port {port} - Could not Scan?! ")
 
-print("\nScan Done!")
+
+print("\n","=" * 40)
+print(f"Found {open_ports} Open ports")
+print("=" * 40)
