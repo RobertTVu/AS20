@@ -1,11 +1,32 @@
 #!/usr/bin/env python3
 import socket
 
-# Lista på portar fyll mer?
-ports = {21: "FTP", 22: "SSH",23: "Telnet",80: "HTTP", 443: "HTTPS", 3306: "MySQL", 3389: "RDP", 8080: "ALT-HTTP"}
-
+# Lista på portar 
+ports = {
+    20: "FTP-Data",
+    21: "FTP", 
+    22: "SSH",
+    23: "Telnet",
+    25: "SMTP",
+    53: "DNS",
+    80: "HTTP",
+    110: "POP3",
+    135: "RPC",
+    139: "NetBIOS",
+    143: "IMAP",
+    443: "HTTPS",
+    445: "SMB",
+    1433: "MSSQL",
+    1521: "Oracle",
+    3306: "MySQL",
+    3389: "RDP",
+    5432: "PostgreSQL",
+    5900: "VNC",
+    8080: "HTTP-Alt",
+    8443: "HTTPS-Alt"
+}
 print("=" * 40)
-print("          Port Scan v1.1")
+print("          Port Scan v1.2")
 print("=" * 40)
 
 
@@ -17,7 +38,7 @@ for port, name in ports.items():
     try:
         # Skapa socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2)
+        sock.settimeout(1)
 
         # Försök anslut
         result = sock.connect_ex((ip, port))
