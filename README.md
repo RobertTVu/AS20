@@ -1,44 +1,44 @@
-# NetScanner 
+# Port_Scanner 
 
-A simple and beginner-friendly network port scanner written in Python.
+A simple and beginner-friendly network port scanner written in Python for educational purposes.
 
 ## Description
 
-NetScanner scans common ports on a specified IP address to identify open services. Perfect for monitoring your homelab network and learning the basics of network scanning and Python socket programming.
+Port Scanner scans common ports on a specified IP address to identify open services. Perfect for monitoring your homelab network and learning the basics of network scanning and Python socket programming.
 
 ## Installation
 
 ### Prerequisites
-- Python 3.6 or later
+- Python 3. latest version
 - Git (optional)
 
 ### Download
 
 **Option 1: Using Git**
 ```bash
-git clone https://github.com/RobertTVu/NetScanner.git
-cd NetScanner
+git clone https://github.com/RobertTVu/AS20.git
+cd AS20
 ```
 
 **Option 2: Direct Download**
-Download `simple_scanner.py` directly from the repository.
+Download `port_scan.py` directly from the repository.
 
 ## Usage
 
 ### Linux / macOS
 ```bash
 # Method 1: Run with Python
-python3 simple_scanner.py
+python3 port_scan.py
 
 # Method 2: Make executable and run
-chmod +x simple_scanner.py
-./simple_scanner.py
+chmod +x port_scan.py
+./port_scan.py
 ```
 
 ### Windows
 ```powershell
 # In Command Prompt or PowerShell
-python simple_scanner.py
+python port_scan.py
 ```
 
 ## Details
