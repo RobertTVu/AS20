@@ -30,6 +30,11 @@ PORTS = {
 TIMEOUT = 1
 VERSION = "1.3"
 
+#För att underlätta användar upplevelsen skriv också ut 
+#loopback address och nuvarande ip address av miljön.
+
+#Även möjligen att det för nu endast funkar för ipv4.
+#Lägg till om du orkar ipv6 funktionalitet.
 def print_banner():
     print("=" * 40)
     print(f"          Port Scan v{VERSION}")
@@ -74,7 +79,7 @@ def display_results(open_ports, total_scanned):
         
     print("=" * 40)
 
-#Test
+
 def main():
     try:
         print_banner()
