@@ -74,7 +74,7 @@ def display_results(open_ports, total_scanned):
         
     print("=" * 40)
 
-
+#Test
 def main():
     try:
         print_banner()
