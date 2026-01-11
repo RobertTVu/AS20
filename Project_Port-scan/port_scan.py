@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 
+"""
+Port Scanner - Network port scanning tool
+Author: RTxVU
+"""
+
 import socket
 import sys
+import argparse
+import os
+from datetime import datetime
 
+# ============================================
 PORTS = {
     20: "FTP-Data",
     21: "FTP", 
@@ -24,23 +33,53 @@ PORTS = {
     5432: "PostgreSQL",
     5900: "VNC",
     8080: "HTTP-Alt",
-    8443: "HTTPS-Alt"
+    8443: "HTTPS-Alt",
+    45552: "TailScale"
 }
 
 TIMEOUT = 1
-VERSION = "1.3"
+VERSION = "1.4"
+AUTHOR = "RTxVU"
 
-#För att underlätta användar upplevelsen skriv också ut 
-#loopback address och nuvarande ip address av miljön.
+# ============================================
 
-#Även möjligen att det för nu endast funkar för ipv4.
-#Lägg till om du orkar ipv6 funktionalitet.
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    except:
+        return "N/A"
+
+
 def print_banner():
-    print("=" * 40)
+    print("\n\n" + "=" * 45)
     print(f"          Port Scan v{VERSION}")
-    print("=" * 40)
+    print("=" * 45)
+    print(f"Your IP: {get_local_ip()}")
+    print(f"Protocol: IPv4 only")
+    print("=" * 45)
 
 
+def validate_ip(ip_address):
+    try:
+        parts = ip_address.split('.')
+
+        if len(parts) != 4:
+            return False
+        for part in parts:
+            if not part.isdigit():
+                return False
+            num = int(part)
+            if num < 0 or num > 255:
+                return False
+        return True
+    except (ValueError, AttributeError):
+        return False
+
+#The Core work
 def scan_port(ip, port, timeout=TIMEOUT):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,13 +96,15 @@ def scan_target(ip, ports_dict):
     open_ports = []
     closed_ports = [] 
 
-    print(f"\nScanning {ip} ....\n")
+    print(f"\nScanning {ip} ..\n")
     for port, service_name in sorted(ports_dict.items()):
         is_open = scan_port(ip, port)
 
         if is_open:
             print(f" Port {port:5} ({service_name:12}) is OPEN")
             open_ports.append({"port": port, "service": service_name})
+        else:
+            closed_ports.append({"port": port, "service": service_name})
     return open_ports, closed_ports
 
 
@@ -79,16 +120,113 @@ def display_results(open_ports, total_scanned):
         
     print("=" * 40)
 
+def save_results(ip, open_ports, closed_ports, total_scanned):
+    timestamp = datetime.now().strftime("%Y%m%d")
+    safe_ip = ip.replace('.', '_')
+    filename = f"scan_{safe_ip}_{timestamp}.txt"
+
+    try:
+        with open(filename, 'w', encoding='utf-8') as f:
+            #Header
+            f.write("=" * 60 + "\n")
+            f.write(f"Port Scan Report - v{VERSION}\n")
+            f.write("=" * 60 + "\n")
+            f.write(f"Target IP:       {ip}\n")
+            f.write(f"Scan Date/Time:  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Scanner Version: {VERSION}\n")
+            f.write(f"Author:          {AUTHOR}\n")
+            f.write("=" * 60 + "\n\n")
+            #Summary
+            f.write("SCAN SUMMARY\n")
+            f.write("-" * 60 + "\n")
+            f.write(f"Total ports scanned: {total_scanned}\n")
+            f.write(f"Open ports found:    {len(open_ports)}\n")
+            f.write(f"Closed ports:        {len(closed_ports)}\n")
+            f.write("\n")
+
+             #Open ports
+            if open_ports:
+                f.write("OPEN PORTS\n")
+                f.write("-" * 60 + "\n")
+                for port_info in open_ports:
+                    f.write(f"Port {port_info['port']:5} - {port_info['service']}\n")
+                f.write("\n")
+            else:
+                f.write("No open ports found.\n\n")
+            
+            #End
+            f.write("=" * 60 + "\n")
+            f.write("End of Report\n")
+            f.write("=" * 60 + "\n")
+        
+        return filename
+    
+    except IOError as e:
+        print(f"\n[ERROR] Could not save file: {e}")
+        return None
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="\nDescription:\nNetwork Port Scanner - Scan common ports on a target IP address",
+        epilog=f"Example: python3 port_scan.py 192.168.1.1\nAuthor: {AUTHOR}",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument(
+        'target',
+        nargs='?',
+        help='target IP address to scan (Optional, will prompt if not provided)'
+    )
+
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version=f'Port Scanner v{VERSION} by {AUTHOR}'
+    )
+
+    parser.add_argument(
+
+        '-l', '--log',
+        action='store_true',
+        help='Save scan results to log file (scan_<IP>_<timestamp>.txt)'
+    )
+
+    return parser.parse_args()
+
+
 
 def main():
     try:
+        args = parse_arguments()
+
         print_banner()
 
-        ip = input("\nEnter IP-address: ").strip()
+        if args.target:
+            ip = args.target
+            print(f"\nTarget: {ip} (from command line)")
+        else:
+            #Get User input
+            ip = input("\nEnter IP-address: ").strip()  
 
+       
+        #Valid IP format
+        if not validate_ip(ip):
+            print(f"\nERROR Invalid IP address format: {ip}")
+            print("\nValid format: X.X.X.X (where X is 0-255)")
+            sys.exit(1)
+
+        #Scan Target
         open_ports, closed_ports = scan_target(ip, PORTS)
 
+        #Display results
         display_results(open_ports, len(PORTS))
+
+        if args.log:
+            filename = save_results(ip, open_ports, closed_ports, len(PORTS))
+            if filename:
+                print(f"\nResults saved to: {filename}")
+                full_path = os.path.abspath(filename)
+                print(f"    Location: {full_path}")
 
     except KeyboardInterrupt:
         print("\n\nScan cancelled by user")
