@@ -1,4 +1,4 @@
-# Overview of Applied Script
+# Overview of Scripts
 
 **Description:**
 Practical scripting and automation for IT security, focusing on

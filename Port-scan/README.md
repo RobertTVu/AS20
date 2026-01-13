@@ -1,4 +1,4 @@
-# Port_Scanner 
+# Port Scanner 
 
 A network port scanner for educational purposes and homelab monitoring.
 
