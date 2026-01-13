@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 
-"""
-Port Scanner - Network port scanning tool
-Author: RTxVU
-"""
-
 import socket
 import sys
 import argparse
 import os
-from datetime import datetime
+import datetime
 
 # ============================================
+
 PORTS = {
     20: "FTP-Data",
     21: "FTP", 
@@ -42,7 +38,7 @@ VERSION = "1.4"
 AUTHOR = "RTxVU"
 
 # ============================================
-
+#1.Get your IP
 def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -53,7 +49,7 @@ def get_local_ip():
     except:
         return "N/A"
 
-
+#2.Print your start banner
 def print_banner():
     print("\n\n" + "=" * 45)
     print(f"          Port Scan v{VERSION}")
@@ -62,7 +58,7 @@ def print_banner():
     print(f"Protocol: IPv4 only")
     print("=" * 45)
 
-
+#3.Check if ip format is valid
 def validate_ip(ip_address):
     try:
         parts = ip_address.split('.')
@@ -79,7 +75,7 @@ def validate_ip(ip_address):
     except (ValueError, AttributeError):
         return False
 
-#The Core work
+#4.The Core work
 def scan_port(ip, port, timeout=TIMEOUT):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -91,7 +87,7 @@ def scan_port(ip, port, timeout=TIMEOUT):
         print(f"  ERROR - Socket error on port {port}: {e}")
         return False
 
-
+#5.Scan all PORTS using w scan_port
 def scan_target(ip, ports_dict):
     open_ports = []
     closed_ports = [] 
@@ -107,19 +103,22 @@ def scan_target(ip, ports_dict):
             closed_ports.append({"port": port, "service": service_name})
     return open_ports, closed_ports
 
-
+#6.Display results
 def display_results(open_ports, total_scanned):
-    print("\n","=" * 40)
+    print("\n\n" + "=" * 45)
     print("Scan Complete")
     print(f"Total ports scanned: {total_scanned}")
     print(f"Open ports found: {len(open_ports)}")
     
     if open_ports:
-        port_numbers = [str(p["port"]) for p in open_ports]
+        port_numbers = []
+        for p in open_ports:
+            port_numbers.append(str(p["port"]))
         print(f"Open ports: {', '.join(port_numbers)}")
         
-    print("=" * 40)
+    print("=" * 45)
 
+#7.Save_results to file txt
 def save_results(ip, open_ports, closed_ports, total_scanned):
     timestamp = datetime.now().strftime("%Y%m%d")
     safe_ip = ip.replace('.', '_')
@@ -144,7 +143,7 @@ def save_results(ip, open_ports, closed_ports, total_scanned):
             f.write(f"Closed ports:        {len(closed_ports)}\n")
             f.write("\n")
 
-             #Open ports
+            #Open ports
             if open_ports:
                 f.write("OPEN PORTS\n")
                 f.write("-" * 60 + "\n")
@@ -165,6 +164,7 @@ def save_results(ip, open_ports, closed_ports, total_scanned):
         print(f"\n[ERROR] Could not save file: {e}")
         return None
 
+#8.Command-line argument 
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="\nDescription:\nNetwork Port Scanner - Scan common ports on a target IP address",
@@ -190,47 +190,40 @@ def parse_arguments():
         action='store_true',
         help='Save scan results to log file (scan_<IP>_<timestamp>.txt)'
     )
-
     return parser.parse_args()
-
 
 
 def main():
     try:
-        args = parse_arguments()
+        args = parse_arguments()                            #For -flags
 
-        print_banner()
+        print_banner()                                      #Display banner
 
-        if args.target:
+        if args.target:                                     # From Command line input w IP-target
             ip = args.target
             print(f"\nTarget: {ip} (from command line)")
         else:
-            #Get User input
-            ip = input("\nEnter IP-address: ").strip()  
+            ip = input("\nEnter IP-address: ").strip()      #Get User input
 
-       
-        #Valid IP format
-        if not validate_ip(ip):
+
+        if not validate_ip(ip):                             #Valid IP format
             print(f"\nERROR Invalid IP address format: {ip}")
             print("\nValid format: X.X.X.X (where X is 0-255)")
             sys.exit(1)
 
-        #Scan Target
-        open_ports, closed_ports = scan_target(ip, PORTS)
+        open_ports, closed_ports = scan_target(ip, PORTS)    #Scan Target
+        display_results(open_ports, len(PORTS))              #Display results
 
-        #Display results
-        display_results(open_ports, len(PORTS))
-
-        if args.log:
+        if args.log:                                         #Save if -l is used
             filename = save_results(ip, open_ports, closed_ports, len(PORTS))
             if filename:
                 print(f"\nResults saved to: {filename}")
                 full_path = os.path.abspath(filename)
                 print(f"    Location: {full_path}")
 
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:                               #Ctrl+c
         print("\n\nScan cancelled by user")
-    except Exception as e:
+    except Exception as e:                                  #Something went wrong
         print(f"\nError - An error occurred: {e}")
         sys.exit(1)
 
