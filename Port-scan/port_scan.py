@@ -4,7 +4,7 @@ import socket
 import sys
 import argparse
 import os
-import datetime
+from datetime import datetime
 
 # ============================================
 
