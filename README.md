@@ -16,10 +16,11 @@ real-world security.
 
 | Project | Description | Language |
 |---------|-------------|----------|
+| [**Port-scan**](./Port-scan/) | Network port scanner | Python |
 | [**O1_Info-Script**](./o1_Info-Script/) | System reconnaissance in Linux | Bash |
 | [**O2_MD5_Hash_Checker**](./o2_MD5_Hash_Checker/) | MD5 hash verification & cracking with Hashcat | Bash/Python |
 | [**O3_AV-EDR-Malware-test**](./o3_AV-EDR-Malware-test/) | AV/EDR testing in Windows environment | Python |
-| [**Port-scan**](./Port-scan/) | Network port scanner | Python |
+
 
 ---
 
